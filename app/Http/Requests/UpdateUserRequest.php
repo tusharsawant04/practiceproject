@@ -21,10 +21,16 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-       $userId = $this->route('user') ?? $this->route('id');
+       $userParam = $this->route('user') ?? $this->route('id');
+    
+        // If it's a Model instance, get the ID. Otherwise, assume it's already the ID.
+        $userId = is_object($userParam) && method_exists($userParam, 'getKey') 
+            ? $userParam->getKey() 
+            : $userParam;
 
         return [
             'name' => 'sometimes|required|string|max:255',
+            // Make sure the ID exclusion works correctly
             'email' => "sometimes|required|email|unique:users,email,{$userId}",
             'password' => 'nullable|string|min:8|confirmed',
         ];
